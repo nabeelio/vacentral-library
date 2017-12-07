@@ -1,10 +1,9 @@
 {
     "name": "nabeel/vacentral",
     "license": "MIT",
-    "version": "0.0.1",
     "minimum-stability": "stable",
     "require": {
-        "php": "> 7.0.0",
+        "php": ">= 7.0.0",
         "symfony/lts": "v3",
         "roave/security-advisories": "dev-master",
         "guzzlehttp/guzzle": "6.3.0"
@@ -23,5 +22,8 @@
         "psr-4": {
             "Tests\\": "tests/"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
