@@ -6,10 +6,20 @@
  * Time: 7:12 PM
  */
 
-use Nabeelio\VaCentral\VaCentral;
-use PHPUnit_Framework_TestCase;
+use VaCentral;
 
-class VaCentralTest extends PHPUnit_Framework_TestCase
+class VaCentralTest extends \PHPUnit\Framework\TestCase
 {
+    public function setUp()
+    {
+        VaCentral::setVaCentralUrl('http://vacentral.dev');
+    }
 
+    public function testGetUri()
+    {
+        $this->assertEqual(
+            'http://vacentral.net/api/v1/status',
+            VaCentral::getUri('status')
+        );
+    }
 }
