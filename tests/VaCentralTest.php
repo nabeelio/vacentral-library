@@ -59,4 +59,23 @@ class VaCentralTest extends \PHPUnit\Framework\TestCase
         $response = \VaCentral\Status::get();
         $this->assertEquals('xyz', $response->version);
     }
+
+    /**
+     * Check airports
+     */
+    public function testAirportData()
+    {
+        $this->addMocks(new MockHandler([
+            new Response(200, [], '{"data":{"id":"KJFK","iata":"JFK","icao":"KJFK","name":"John F Kennedy International Airport","location":"New York","country":"United States","timezone":"America\/New_York","fuel_100ll_cost":"0.0","fuel_jeta_cost":"0.0","fuel_mogas_cost":"0.0","lat":"40.63980103","lon":"-73.77890015"}}'),
+            new Response(404, [], json_encode(['message' => 'Not Found']))
+        ]));
+
+        $response = \VaCentral\Airport::get('KJFK');
+        $this->assertEquals('KJFK', $response->icao);
+
+        // Expect a 404 error message
+        $this->expectException(\VaCentral\HttpException::class);
+        $this->expectExceptionCode(404);
+        \VaCentral\Airport::get('GARBAGE');
+    }
 }

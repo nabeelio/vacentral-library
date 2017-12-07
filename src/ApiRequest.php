@@ -7,7 +7,7 @@
 namespace VaCentral;
 
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\ClientException;
 
 
 class ApiRequest {
@@ -31,6 +31,7 @@ class ApiRequest {
      *      'auth' => require token auth
      *  ]
      * @return mixed
+     * @throws HttpException
      */
     public static function request($method, $url, $options=[])
     {
@@ -45,7 +46,14 @@ class ApiRequest {
         }
 
         $request = new Request($method, $url);
-        $response = HttpClient::getHttpClient()->send($request);
+        try {
+            $response = HttpClient::getHttpClient()->send($request, [
+                'http_errors' => true
+            ]);
+        } catch (ClientException $e) {
+            throw new HttpException($e->getMessage(), $e->getCode());
+        }
+
         return \GuzzleHttp\json_decode($response->getBody());
     }
 }

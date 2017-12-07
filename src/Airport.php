@@ -24,6 +24,9 @@ class Airport extends ApiRequest
     public static function get($icao)
     {
         $url = VaCentral::getUri('airports', [$icao]);
-        return self::request('GET', $url);
+        $response = self::request('GET', $url);
+        if(isset($response->data)) {
+            return $response->data;
+        }
     }
 }
