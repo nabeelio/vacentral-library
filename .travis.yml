@@ -1,0 +1,22 @@
+#dist: trusty
+language: php
+php:
+  - '7.0'
+  - '7.1'
+  - '7.2'
+
+before_script:
+  - composer self-update
+  - composer install --no-interaction
+
+script:
+  - vendor/bin/phpunit --debug --verbose
+
+after_success:
+- | # Add binary to GitHub release.
+  if test "$TRAVIS_TAG"
+  then
+    echo "Branch name is $TRAVIS_TAG"
+  else
+    echo "no branch name"
+  fi

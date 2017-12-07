@@ -45,7 +45,7 @@ class ApiRequest {
         }
 
         $request = new Request($method, $url);
-        $response = $request->getBody();
-        return \GuzzleHttp\json_decode($response);
+        $response = HttpClient::getHttpClient()->send($request);
+        return \GuzzleHttp\json_decode($response->getBody());
     }
 }

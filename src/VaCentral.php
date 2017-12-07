@@ -32,9 +32,10 @@ class VaCentral
      * @param array $query
      * @return mixed|string
      */
-    public static function getUri($uri, $params=[], $query=[])
+    public static function getUri($route, $params=[], $query=[])
     {
-        $uri = self::$uris[$uri];
+        $uri = self::getVaCentralUrl();
+        $uri .= self::$uris[$route];
 
         if(!empty($params)) {
             $uri .= '/' . implode('/', $params);
