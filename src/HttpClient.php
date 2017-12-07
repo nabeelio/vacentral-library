@@ -31,4 +31,9 @@ class HttpClient
         self::$httpClient = $client;
     }
 
+    public static function resetHttpClient()
+    {
+        self::$httpClient = new Client();
+    }
+
 }

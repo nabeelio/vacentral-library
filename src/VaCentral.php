@@ -10,7 +10,7 @@ class VaCentral
 {
 
     public static $apiKey;
-    public static $vacUrl;
+    public static $vacUrl = 'https://api.vacentral.net';
     public static $uris = [
         'airports' => '/api/v1/airports',
         'status' => '/api/v1/status',
@@ -27,7 +27,7 @@ class VaCentral
     }
 
     /**
-     * @param $uri
+     * @param string $route
      * @param array $params
      * @param array $query
      * @return mixed|string
