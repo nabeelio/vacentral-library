@@ -1,18 +1,17 @@
 <?php
 /**
- * Created by IntelliJ IDEA.
- * User: nshahzad
- * Date: 12/6/17
- * Time: 7:12 PM
+ * Tests for vaCentral
  */
 
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use VaCentral\VaCentral;
-use GuzzleHttp\Handler\MockHandler;
+namespace tests\units\VaCentral;
 
+use \GuzzleHttp\HandlerStack;
+use \GuzzleHttp\Psr7\Response;
+use \GuzzleHttp\Handler\MockHandler;
 
-class VaCentralTest extends \PHPUnit\Framework\TestCase
+use atoum;
+
+class VaCentral extends atoum
 {
     public function setUp()
     {
@@ -22,7 +21,7 @@ class VaCentralTest extends \PHPUnit\Framework\TestCase
     protected function addMocks($mocks)
     {
         $handler = HandlerStack::create($mocks);
-        $client = new GuzzleHttp\Client(['handler' => $handler]);
+        $client = new \GuzzleHttp\Client(['handler' => $handler]);
         \VaCentral\HttpClient::setHttpClient($client);
     }
 
@@ -31,20 +30,12 @@ class VaCentralTest extends \PHPUnit\Framework\TestCase
      */
     public function testGetUri()
     {
-        $this->assertEquals(
-            'https://api.vacentral.net/api/v1/status',
-            VaCentral::getUri('status')
+        $this->string(\VaCentral\VaCentral::getUri('status'))->isEqualTo(
+            'https://api.vacentral.net/api/v1/status'
         );
 
-        $this->assertEquals(
-            'https://api.vacentral.net/api/v1/airports/KJFK',
-            VaCentral::getUri('airports', ['KJFK'])
-        );
-
-        $this->assertEquals(
-            'https://api.vacentral.net/api/v1/airports?p=1',
-            VaCentral::getUri('airports', null, ['p' => 1])
-        );
+        $this->string(\VaCentral\VaCentral::getUri('airports', null, ['p' => 1]))
+            ->isEqualTo('https://api.vacentral.net/api/v1/airports?p=1');
     }
 
     /**
@@ -57,7 +48,7 @@ class VaCentralTest extends \PHPUnit\Framework\TestCase
         ]));
 
         $response = \VaCentral\Status::get();
-        $this->assertEquals('xyz', $response->version);
+        $this->string('xyz')->isEqualTo($response->version);
     }
 
     public function testAirportDataMocked()
@@ -68,27 +59,26 @@ class VaCentralTest extends \PHPUnit\Framework\TestCase
         ]));
 
         $response = \VaCentral\Airport::get('KJFK');
-        $this->assertEquals('KJFK', $response->icao);
+        $this->string('KJFK')->isEqualTo($response->icao);
 
         // Expect a 404 error message
-        $this->expectException(\VaCentral\HttpException::class);
-        $this->expectExceptionCode(404);
-        \VaCentral\Airport::get('GARBAGE');
+        $this->exception(function() {
+            \VaCentral\Airport::get('GARBAGE');
+        })->hasCode(404)->isInstanceOf(\VaCentral\HttpException::class);
     }
 
     /**
-     * Check airports
+     * Call the actual vaCentral API
      */
     public function testAirportData()
     {
         \VaCentral\HttpClient::resetHttpClient();
 
         $response = \VaCentral\Airport::get('KJFK');
-        $this->assertEquals('KJFK', $response->icao);
+        $this->string('KJFK')->isEqualTo($response->icao);
 
-        // Expect a 404 error message
-        $this->expectException(\VaCentral\HttpException::class);
-        $this->expectExceptionCode(404);
-        \VaCentral\Airport::get('GARBAGE');
+        $this->exception(function () {
+            \VaCentral\Airport::get('GARBAGE');
+        })->hasCode(404)->isInstanceOf(\VaCentral\HttpException::class);
     }
 }
