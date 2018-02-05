@@ -6,11 +6,18 @@
 
 namespace VaCentral;
 
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\ClientException;
+
 class VaCentral
 {
-
     public static $apiKey;
     public static $vacUrl = 'https://api.vacentral.net';
+
+    /**
+     * Hold the base URLs
+     * @var array
+     */
     public static $uris = [
         'airports' => '/api/v1/airports',
         'status' => '/api/v1/status',
@@ -24,6 +31,51 @@ class VaCentral
     public static function setApiKey($apiKey)
     {
         self::$apiKey = $apiKey;
+    }
+
+    /**
+     * Create the full valid URL resource
+     * @param $uri
+     * @return string
+     */
+    public static function createUrl($uri)
+    {
+        return VaCentral::getVaCentralUrl() . '/' . $uri;
+    }
+
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array $options
+     *  [
+     *      'body' => false,
+     *      'auth' => require token auth
+     *  ]
+     * @return mixed
+     * @throws HttpException
+     */
+    public static function request($method, $url, $options = [])
+    {
+        $options = array_merge([
+            'body' => null,
+            'auth' => false,
+        ], $options);
+
+        $headers = [];
+        if ($options['auth']) {
+            $headers['Authorization'] = 'token:' . VaCentral::getApiKey();
+        }
+
+        $request = new Request($method, $url);
+        try {
+            $response = HttpClient::getHttpClient()->send($request, [
+                'http_errors' => true
+            ]);
+        } catch (ClientException $e) {
+            throw new HttpException($e->getMessage(), $e->getCode());
+        }
+
+        return \GuzzleHttp\json_decode($response->getBody());
     }
 
     /**
@@ -57,43 +109,4 @@ class VaCentral
     {
         self::$vacUrl = $url;
     }
-
-    /**
-     * @param $response
-     * @return mixed|null
-     */
-    protected function parseResponse($response)
-    {
-        if ($response->getStatusCode() !== 200) {
-            return null;
-        }
-
-        return json_decode($response->getBody());
-    }
-
-    /**
-     * @param string $icao Airport to retrieve data about
-     * @return mixed|null
-     * @throws RequestException|ClientException|BadResponseException
-     */
-    public function getAirportData($icao)
-    {
-        $url = self::$urls['airport'] . '/' . $icao;
-        $response = $this->client->get($url);
-        return $this->parseResponse($response);
-    }
-
-    /**
-     * Get the status of the vaCentral service
-     * @return mixed|null
-     * @throws RequestException|ClientException|BadResponseException
-     */
-    public function getStatus()
-    {
-        $url = self::$urls['status'];
-        $response = $this->client->get($url);
-
-        return $this->parseResponse($response);
-    }
-
 }

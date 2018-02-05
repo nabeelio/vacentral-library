@@ -6,7 +6,7 @@
 
 namespace VaCentral;
 
-class Airport extends ApiRequest
+class Airport extends VaCentral
 {
     /**
      * Get the Airport information from the vaCentral API
@@ -20,10 +20,11 @@ class Airport extends ApiRequest
      *      'lon' => '',
      *      'tz' => ''
      *  ]
+     * @throws HttpException
      */
     public static function get($icao)
     {
-        $url = VaCentral::getUri('airports', [$icao]);
+        $url = self::createUrl(self::$uris['airports'] . '/' . $icao);
         $response = self::request('GET', $url);
         if(isset($response->data)) {
             return $response->data;

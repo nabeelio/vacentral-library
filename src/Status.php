@@ -11,10 +11,11 @@ namespace VaCentral;
  * Class Status
  * @package VaCentral
  */
-class Status extends ApiRequest
+class Status extends VaCentral
 {
     /**
      * @return mixed
+     * @throws \VaCentral\HttpException
      * @throws
      */
     public static function get()
