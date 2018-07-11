@@ -20,7 +20,7 @@ class VaCentral
      */
     public static $uris = [
         'airports' => '/api/v1/airports',
-        'status' => '/api/v1/status',
+        'status'   => '/api/v1/status',
     ];
 
     public static function getApiKey()
@@ -40,7 +40,7 @@ class VaCentral
      */
     public static function createUrl($uri)
     {
-        return VaCentral::getVaCentralUrl() . '/' . $uri;
+        return VaCentral::getVaCentralUrl() . $uri;
     }
 
     /**

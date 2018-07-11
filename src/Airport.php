@@ -24,7 +24,7 @@ class Airport extends VaCentral
      */
     public static function get($icao)
     {
-        $url = self::createUrl(self::$uris['airports'] . '/' . $icao);
+        $url = self::getUri('airports', [$icao]);
         $response = self::request('GET', $url);
         if(isset($response->data)) {
             return $response->data;
