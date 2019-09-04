@@ -6,55 +6,114 @@
 
 namespace VaCentral;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\ClientException;
+use VaCentral\Contracts\IVaCentral;
+use VaCentral\Exceptions\HttpException;
 
-class VaCentral
+class VaCentral implements IVaCentral
 {
-    public static $apiKey;
-    public static $vacUrl = 'https://api.vacentral.net';
+    public $apiKey;
+    public $vacUrl = 'https://api.vacentral.net';
 
-    /**
-     * Hold the base URLs
-     * @var array
-     */
-    public static $uris = [
-        'airports' => '/api/v1/airports',
-        'status'   => '/api/v1/status',
-    ];
+    public $httpClient;
 
-    public static function getApiKey()
+    public function __construct()
     {
-        return self::$apiKey;
-    }
-
-    public static function setApiKey($apiKey)
-    {
-        self::$apiKey = $apiKey;
+        $this->httpClient = new Client();
     }
 
     /**
-     * Create the full valid URL resource
-     * @param $uri
+     * Get the API key
+     *
      * @return string
      */
-    public static function createUrl($uri)
+    public function getApiKey():string
     {
-        return VaCentral::getVaCentralUrl() . $uri;
+        return $this->apiKey;
+    }
+
+    /**
+     * Set the API key
+     *
+     * @param string $apiKey
+     * @return VaCentral
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+        return $this;
+    }
+
+    /**
+     * Get the URL to the API servier
+     *
+     * @return string
+     */
+    public function getVaCentralUrl(): string
+    {
+        return $this->vacUrl;
+    }
+
+    /**
+     * Set the URL to the API server
+     *
+     * @param string $url
+     *
+     * @return IVaCentral
+     */
+    public function setVaCentralUrl($url)
+    {
+        $this->vacUrl = $url;
+        return $this;
+    }
+
+    /**
+     * Look up an airport by ICAO from the API
+     *
+     * @param string $icao Look up an airport by ICAO
+     *
+     * @throws HttpException
+     *
+     * @return array
+     */
+    public function getAirport($icao)
+    {
+        $icao = strtoupper($icao);
+        $response = $this->request('GET', $this->getUri('/api/v1/airport/'.$icao));
+        if (isset($response)) {
+            return $response;
+        }
+    }
+
+    /**
+     * Get a status from the API
+     *
+     * @throws HttpException
+     *
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->request('GET', $this->getUri('/api/v1/status'));
     }
 
     /**
      * @param string $method
      * @param string $url
-     * @param array $options
-     *  [
+     * @param array  $options
+     *      [
      *      'body' => false,
      *      'auth' => require token auth
-     *  ]
-     * @return mixed
+     *      ]
+     *
      * @throws HttpException
+     *
+     * @return mixed
      */
-    public static function request($method, $url, $options = [])
+    protected function request($method, $url, $options = [])
     {
         $options = array_merge([
             'body' => null,
@@ -63,15 +122,17 @@ class VaCentral
 
         $headers = [];
         if ($options['auth']) {
-            $headers['Authorization'] = 'token:' . VaCentral::getApiKey();
+            $headers['Authorization'] = 'token:'.$this->apiKey;
         }
 
         $request = new Request($method, $url);
         try {
-            $response = HttpClient::getHttpClient()->send($request, [
+            $response = $this->httpClient->send($request, [
                 'http_errors' => true
             ]);
         } catch (ClientException $e) {
+            throw new HttpException($e->getMessage(), $e->getCode());
+        } catch (GuzzleException $e) {
             throw new HttpException($e->getMessage(), $e->getCode());
         }
 
@@ -84,11 +145,9 @@ class VaCentral
      * @param array $query
      * @return mixed|string
      */
-    public static function getUri($route, $params=[], $query=[])
+    protected function getUri($route, $params=[], $query=[])
     {
-        $uri = self::getVaCentralUrl();
-        $uri .= self::$uris[$route];
-
+        $uri = $this->vacUrl.$route;
         if(!empty($params)) {
             $uri .= '/' . implode('/', $params);
         }
@@ -98,15 +157,5 @@ class VaCentral
         }
 
         return $uri;
-    }
-
-    public static function getVaCentralUrl()
-    {
-        return self::$vacUrl;
-    }
-
-    public static function setVaCentralUrl($url)
-    {
-        self::$vacUrl = $url;
     }
 }

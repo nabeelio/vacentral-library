@@ -1,13 +1,6 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: nabeelshahzad
- * Date: 12/7/17
- * Time: 1:23 PM
- */
 
-namespace VaCentral;
-
+namespace VaCentral\Exceptions;
 
 use Throwable;
 
