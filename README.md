@@ -6,7 +6,7 @@ The interface to vaCentral, used in phpVMS, and can be used in your own custom s
 
 ## installation
 
-Installation is easiest using composer. Autloading should take care of the rest. 
+Installation is easiest using composer. Autoloading should take care of the rest. 
 
 ```bash
 composer require nabeel/vacentral
@@ -17,24 +17,11 @@ composer require nabeel/vacentral
 ```php
 use VaCentral\VaCentral;
 
-VaCentral::setApiKey('YOUR API KEY');
+$client = new VaCentral();
+$client->setApiKey('YOUR API KEY');
 
-# Look up an airport
-$airport = \VaCentral\Airport::get('KJFK');
-```
+# Look up an airport, returns an instance of \Vacentral\Models\Airport
+$airport = $client->getAirport('KJFK');
 
-Which will return an object:
-
-```json
-{
-   "id":"KJFK",
-   "iata":"JFK",
-   "icao":"KJFK",
-   "name":"John F Kennedy International Airport",
-   "city":"New York",
-   "country":"United States",
-   "tz":"America\/New_York",
-   "lat":"40.63980103",
-   "lon":"-73.77890015"
-}
+echo $airport->icao; // Will write out KJFK
 ```
