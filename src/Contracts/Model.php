@@ -5,7 +5,7 @@ namespace VaCentral\Contracts;
 abstract class Model
 {
     /**
-     * Create a new instance of an Airport model
+     * Create a new instance of the model
      *
      * @param array $fields
      *
