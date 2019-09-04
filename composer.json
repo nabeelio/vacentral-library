@@ -10,10 +10,21 @@
         "atoum/atoum": "^3.2",
         "atoum/stubs": "^2.5"
     },
+    "archive": {
+        "exclude": [
+            ".idea",
+            "tests",
+            ".travis.yml",
+            "Makefile"
+        ]
+    },
     "autoload": {
         "psr-4": {
             "VaCentral\\": "src/"
-        }
+        },
+        "exclude-from-classmap": [
+            "/tests/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
