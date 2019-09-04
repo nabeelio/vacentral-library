@@ -53,10 +53,10 @@ class VaCentral extends atoum
             new Response(404, [], json_encode(['message' => 'Not Found']))
         ]));
 
-        $response = $this->client->getAirport('KJFK');
-        $this->string('KJFK')->isEqualTo($response->icao);
-        $this->float(40.63980103)->isEqualTo($response->lat);
-        $this->float(-73.77890015)->isEqualTo($response->lon);
+        $airport = $this->client->getAirport('KJFK');
+        $this->string('KJFK')->isEqualTo($airport->icao);
+        $this->float(40.63980103)->isEqualTo($airport->lat);
+        $this->float(-73.77890015)->isEqualTo($airport->lon);
 
         // Expect a 404 error message
         $this->exception(function() {

@@ -12,6 +12,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\ClientException;
 use VaCentral\Contracts\IVaCentral;
 use VaCentral\Exceptions\HttpException;
+use VaCentral\Models\Airport;
 
 class VaCentral implements IVaCentral
 {
@@ -77,14 +78,15 @@ class VaCentral implements IVaCentral
      *
      * @throws HttpException
      *
-     * @return array
+     * @return Airport
      */
-    public function getAirport($icao)
+    public function getAirport($icao): Airport
     {
         $icao = strtoupper($icao);
         $response = $this->request('GET', $this->getUri('/api/v1/airport/'.$icao));
         if (isset($response)) {
-            return $response;
+            $airport = Airport::create($response);
+            return $airport;
         }
     }
 

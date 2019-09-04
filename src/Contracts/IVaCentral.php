@@ -3,6 +3,7 @@
 namespace VaCentral\Contracts;
 
 use VaCentral\Exceptions\HttpException;
+use VaCentral\Models\Airport;
 
 interface IVaCentral
 {
@@ -47,7 +48,7 @@ interface IVaCentral
      *
      * @return object
      */
-    public function getAirport($icao);
+    public function getAirport($icao): Airport;
 
     /**
      * Get a status from the API
