@@ -83,7 +83,7 @@ class VaCentral implements IVaCentral
     public function getAirport($icao): Airport
     {
         $icao = strtoupper($icao);
-        $response = $this->request('GET', $this->getUri('/api/v1/airport/'.$icao));
+        $response = $this->request('GET', $this->getUri('/api/v1/airports/'.$icao));
         if (isset($response)) {
             $airport = Airport::create($response);
             return $airport;
