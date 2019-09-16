@@ -2,7 +2,7 @@
 
 namespace VaCentral\Exceptions;
 
-class HttpException extends \Exception
+class BuilderException extends \Exception
 {
     public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {

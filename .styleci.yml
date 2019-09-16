@@ -1,0 +1,24 @@
+preset: recommended
+risky: true
+enabled:
+  - align_double_arrow_minimal
+  - ereg_to_preg
+  - function_to_constant
+  - modernize_types_casting
+  - no_blank_lines_after_return
+  - no_homoglyph_names
+  - no_php4_constructor
+  - no_useless_else
+  - phpdoc_add_missing_param_annotation
+disabled:
+  - align_double_arrow
+  - blank_line_before_return
+  - phpdoc_summary
+  - phpdoc_var_without_name
+finder:
+  exclude:
+    - node_modules
+    - storage
+    - vendor
+  name: "*.php"
+  not-name: "*.blade.php"
