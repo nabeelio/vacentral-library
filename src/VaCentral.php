@@ -69,7 +69,7 @@ class VaCentral implements IVaCentral
      */
     public function setVaCentralUrl($url)
     {
-        $this->vacUrl = $url;
+        self::$vacUrl = $url;
         return $this;
     }
 
