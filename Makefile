@@ -5,4 +5,4 @@ help:
 
 .PHONY: test
 test:
-	@vendor/bin/atoum -f tests/VaCentralTest.php
+	@vendor/bin/phpunit --verbose
