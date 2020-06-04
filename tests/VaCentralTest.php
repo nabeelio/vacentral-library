@@ -3,27 +3,29 @@
  * Tests for vaCentral
  */
 
-namespace tests\units\VaCentral;
+namespace Tests;
 
 use \GuzzleHttp\Client;
 use \GuzzleHttp\HandlerStack;
 use \GuzzleHttp\Psr7\Response;
 use \GuzzleHttp\Handler\MockHandler;
 
-use atoum;
+use PHPUnit\Framework\TestCase;
 use VaCentral\Contracts\IVaCentral;
 use VaCentral\Exceptions\HttpException;
+use VaCentral\Models\Stat;
+use VaCentral\VaCentral;
 
-class VaCentral extends atoum
+class VaCentralTest extends TestCase
 {
     /**
      * @var IVaCentral
      */
     protected $client;
 
-    public function beforeTestMethod($method)
+    public function setUp(): void
     {
-        $this->client = new \VaCentral\VaCentral();
+        $this->client = new VaCentral();
     }
 
     protected function addMocks($mocks)
@@ -43,7 +45,7 @@ class VaCentral extends atoum
         ]));
 
         $response = $this->client->getStatus();
-        $this->string('xyz')->isEqualTo($response->version);
+        $this->assertEquals('xyz', $response->version);
     }
 
     public function testAirportDataMocked()
@@ -54,26 +56,21 @@ class VaCentral extends atoum
         ]));
 
         $airport = $this->client->getAirport('KJFK');
-        $this->string('KJFK')->isEqualTo($airport->icao);
-        $this->float(40.63980103)->isEqualTo($airport->lat);
-        $this->float(-73.77890015)->isEqualTo($airport->lon);
+        $this->assertEquals('KJFK', $airport->icao);
+        $this->assertEquals(40.63980103, $airport->lat);
+        $this->assertEquals(-73.77890015, $airport->lon);
 
         // Expect a 404 error message
-        $this->exception(function() {
-            $this->client->getAirport('GARBAGE');
-        })->hasCode(404)->isInstanceOf(HttpException::class);
+        $this->expectException(HttpException::class);
+        $this->client->getAirport('GARBAGE');
     }
 
-    /**
-     * Call the actual vaCentral API
-     */
-    /*public function testAirportData()
+    public function testStatCall()
     {
-        $response = $this->client->getAirport('KJFK');
-        $this->string('KJFK')->isEqualTo($response->icao);
+        $stat = Stat::new('event', 'test-run', ['fieldA' => 'value', 'aFirstField' => 'value2']);
+        $stat_array = $stat->toArray();
+        $this->assertTrue(is_array($stat_array));
 
-        $this->exception(function () {
-            $this->client->getAirport('GARBAGE');
-        })->hasCode(404)->isInstanceOf(HttpException::class);
-    }*/
+        $this->client->postStat($stat);
+    }
 }

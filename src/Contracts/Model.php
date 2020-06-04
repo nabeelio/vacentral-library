@@ -2,7 +2,7 @@
 
 namespace VaCentral\Contracts;
 
-abstract class Model
+class Model
 {
     /**
      * Create a new instance of the model
@@ -32,5 +32,13 @@ abstract class Model
     public static function __set_state($an_array)
     {
         return static::create($an_array);
+    }
+
+    /**
+     * Convert this class to an array (for POST, PUT, etc)
+     */
+    public function toArray()
+    {
+        return (array) $this;
     }
 }

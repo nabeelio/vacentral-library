@@ -3,12 +3,12 @@
     "license": "MIT",
     "minimum-stability": "stable",
     "require": {
-        "php": ">= 7.2",
+        "php": ">= 7.3",
+        "ext-json": "*",
         "guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {
-        "atoum/atoum": "^3.2",
-        "atoum/stubs": "^2.5"
+        "phpunit/phpunit": "~9.0"
     },
     "archive": {
         "exclude": [

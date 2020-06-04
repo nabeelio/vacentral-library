@@ -22,7 +22,7 @@ abstract class Builder
      *
      * @throws BuilderException
      */
-    public function build(): void
+    public function build()
     {
         foreach ($this->requiredFields as $field) {
             if (!array_key_exists($field, $this->values)) {

@@ -8,22 +8,24 @@ namespace VaCentral;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\ClientException;
 use VaCentral\Contracts\IVaCentral;
 use VaCentral\Exceptions\HttpException;
 use VaCentral\Models\Airport;
+use VaCentral\Models\Stat;
 
 class VaCentral implements IVaCentral
 {
     public $apiKey;
-    public $vacUrl = 'https://api.vacentral.net';
+    public static $vacUrl = 'https://api.vacentral.net';
 
     public $httpClient;
 
     public function __construct()
     {
-        $this->httpClient = new Client();
+        $this->httpClient = new Client([
+            'base_uri' => static::$vacUrl,
+        ]);
     }
 
     /**
@@ -78,16 +80,31 @@ class VaCentral implements IVaCentral
      *
      * @throws HttpException
      *
-     * @return Airport
+     * @return null|Airport
      */
     public function getAirport($icao): Airport
     {
         $icao = strtoupper($icao);
-        $response = $this->request('GET', $this->getUri('/api/airports/'.$icao));
+        $response = $this->request('GET', '/api/airports/'.$icao);
         if (isset($response)) {
             $airport = Airport::create($response);
             return $airport;
         }
+    }
+
+    /**
+     * Post a stat to the vaCentral service
+     *
+     * @param Stat $stat
+     *
+     * @throws HttpException
+     */
+    public function postStat(Stat $stat): void
+    {
+        $body = $stat->toArray();
+        $this->request('POST', '/api/stats', [
+            'body' => $body,
+        ]);
     }
 
     /**
@@ -99,7 +116,23 @@ class VaCentral implements IVaCentral
      */
     public function getStatus()
     {
-        return $this->request('GET', $this->getUri('/api/status'));
+        return $this->request('GET', '/api/status');
+    }
+
+    /**
+     * Recursively sort the body
+     * https://stackoverflow.com/a/4501406
+     *
+     * @param array $body
+     *
+     * @return bool
+     */
+    protected function sort_body(&$body): bool {
+        foreach ($body as &$value) {
+            if (is_array($value)) $this->sort_body($value);
+        }
+
+        return ksort($body);
     }
 
     /**
@@ -118,20 +151,31 @@ class VaCentral implements IVaCentral
     protected function request($method, $url, $options = [])
     {
         $options = array_merge([
-            'body' => null,
-            'auth' => false,
+            'body'  => null,
+            'auth'  => false,
+            'query' => [],
+            'hmac'  => 'RNxMf6SxffYDsJJGSExlwUatPBFoktuU',
         ], $options);
 
-        $headers = [];
+        // Request options for Guzzle
+        $request = [
+            'headers'     => [],
+            'http_errors' => true,
+            'query'       => $options['query'],
+        ];
+
         if ($options['auth']) {
-            $headers['Authorization'] = 'token:'.$this->apiKey;
+            $request['headers']['x-api-key'] = $this->apiKey;
+            $options['hmac'] = $this->apiKey;
         }
 
-        $request = new Request($method, $url);
+        if (!empty($options['body']) && is_array($options['body'])) {
+            $this->sort_body($options['body']);
+            $request['json'] = $options['body'];
+        }
+
         try {
-            $response = $this->httpClient->send($request, [
-                'http_errors' => true
-            ]);
+            $response = $this->httpClient->request($method, $url, $request);
         } catch (ClientException $e) {
             throw new HttpException($e->getMessage(), $e->getCode());
         } catch (GuzzleException $e) {
@@ -139,25 +183,5 @@ class VaCentral implements IVaCentral
         }
 
         return \GuzzleHttp\json_decode($response->getBody());
-    }
-
-    /**
-     * @param string $route
-     * @param array $params
-     * @param array $query
-     * @return mixed|string
-     */
-    protected function getUri($route, $params=[], $query=[])
-    {
-        $uri = $this->vacUrl.$route;
-        if(!empty($params)) {
-            $uri .= '/' . implode('/', $params);
-        }
-
-        if(!empty($query)) {
-            $uri .= '?' . http_build_query($query);
-        }
-
-        return $uri;
     }
 }
